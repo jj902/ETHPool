@@ -1,0 +1,19 @@
+{
+  "name": "ethpool",
+  "version": "1.0.0",
+  "description": "EthPool smart contract provides a service where users can stake ETH and receive rewards.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git@github.com:jeremyjin902/ETHPool.git"
+  },
+  "author": "Jeremy Jin",
+  "license": "MIT",
+  "dependencies": {
+    "@openzeppelin/contracts": "^4.5.0",
+    "truffle": "^5.5.4"
+  }
+}
