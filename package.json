@@ -4,7 +4,7 @@
   "description": "EthPool smart contract provides a service where users can stake ETH and receive rewards.",
   "scripts": {
     "compile": "hardhat compile",
-    "deploy": "hardhat run scripts/deploy.ts",
+    "deploy": "hardhat run scripts/deploy.ts --network kovan",
     "test": "hardhat test"
   },
   "repository": {

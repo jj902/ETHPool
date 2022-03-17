@@ -35,6 +35,11 @@ contract ETHPool is Ownable {
     uint256 private _totalRewardRate;
 
     /**
+     *  @dev We use BASE to make calculation of fixed point numbers to be calculation of integer.
+     */
+    uint256 private constant BASE = 10**18;
+
+    /**
      *  @notice This emits when user deposit(stake) some amount of ETH.
      *  @param _from The address of user who wants to stake.
      *  @param _amount The staking amount.
@@ -54,11 +59,13 @@ contract ETHPool is Ownable {
      *  @param _to The address of user who wants to withdraw.
      *  @param _stakedAmount Total staked amount so far for this user.
      *  @param _rewardAmount Total reward amount so far for this user.
+     *  @param _totalAmount Total amount so far for this user.
      */
     event Withdraw(
         address indexed _to,
         uint256 _stakedAmount,
-        uint256 _rewardAmount
+        uint256 _rewardAmount,
+        uint256 _totalAmount
     );
 
     /**
@@ -71,7 +78,7 @@ contract ETHPool is Ownable {
         stakedBalances[msg.sender] += msg.value;
         totalStakedBalance += msg.value;
 
-        uint256 _lastRevertedReward = _totalRewardRate.mul(msg.value);
+        uint256 _lastRevertedReward = _totalRewardRate.mul(msg.value).div(BASE);
         _revertedRewards[msg.sender] = _revertedRewards[msg.sender].add(
             _lastRevertedReward
         );
@@ -88,40 +95,59 @@ contract ETHPool is Ownable {
     function reward() external payable onlyOwner {
         require(totalStakedBalance > 0, "No one has deposited yet");
 
-        uint256 _lastRewardRate = msg.value.div(totalStakedBalance);
+        uint256 _lastRewardRate = msg.value.mul(BASE).div(totalStakedBalance);
         _totalRewardRate = _totalRewardRate.add(_lastRewardRate);
 
         emit Reward(msg.value);
     }
 
     /**
-     *  @notice Function for user to deposit all his/her staked balance and reward.
+     *  @notice Function for user to withdraw all his/her staked balance and reward.
      *  @dev Here, we calculate real reward, calculate total withdrawl amount,
-     *      and then send that amount to user's address.
-     *      Calculating real reward is main focus here:
-     *      _realReward = _stakedBalance * _totalRewardRate - revertedRewards[msg.sender]
+     *      Clears staked Balance and reverted Reward for that user,
+     *      and then transfer that amount to user's address.
      *  @dev Throws when staked Balance is zero, or if withdraw fails.
      */
     function withdraw() external {
-        require(
-            stakedBalances[msg.sender] > 0,
-            "You have no balance to withdraw"
-        );
-
+        uint256 _realReward = getWithdrawlAmount(msg.sender);
         uint256 _stakedBalance = stakedBalances[msg.sender];
-        uint256 _rewardForStaked = _stakedBalance.mul(_totalRewardRate);
-        uint256 _realReward = _rewardForStaked.sub(
-            _revertedRewards[msg.sender]
-        );
-        uint256 _totalWitdraw = _stakedBalance.add(_realReward);
+        uint256 _withdrawlAmount = _stakedBalance.add(_realReward);
 
         stakedBalances[msg.sender] = 0;
         _revertedRewards[msg.sender] = 0;
         totalStakedBalance = totalStakedBalance.sub(_stakedBalance);
 
-        (bool success, ) = payable(msg.sender).call{value: _totalWitdraw}("");
+        (bool success, ) = payable(msg.sender).call{value: _withdrawlAmount}(
+            ""
+        );
         require(success, "Could not withdraw");
 
-        emit Withdraw(msg.sender, _stakedBalance, _realReward);
+        emit Withdraw(
+            msg.sender,
+            _stakedBalance,
+            _realReward,
+            _withdrawlAmount
+        );
+    }
+
+    /**
+     *  @notice Function to get Real Reward for user.
+     *  @dev Here, we get the real reward like this:
+     *      _realReward = _stakedBalance * _totalRewardRate - _revertedRewards[staker]
+     *  @dev Throws when staked Balance is zero.
+     *  @param _staker Address of user(Staker)
+     *  @return _realReward Real Reward that staker can get so far.
+     */
+    function getWithdrawlAmount(address _staker)
+        public
+        view
+        returns (uint256 _realReward)
+    {
+        require(stakedBalances[_staker] > 0, "You have no balance to withdraw");
+
+        uint256 _rewardForStaked = stakedBalances[_staker]
+            .mul(_totalRewardRate)
+            .div(BASE);
+        _realReward = _rewardForStaked.sub(_revertedRewards[_staker]);
     }
 }
