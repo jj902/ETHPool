@@ -1,55 +1,46 @@
-# Smart Contract Challenge
+# Advanced Sample Hardhat Project
 
-## A) Challenge
+This project demonstrates an advanced Hardhat use case, integrating other tools commonly used alongside Hardhat in the ecosystem.
 
-### 1) Setup a project and create a contract
+The project comes with a sample contract, a test for that contract, a sample script that deploys that contract, and an example of a task implementation, which simply lists the available accounts. It also comes with a variety of other tools, preconfigured to work with the project code.
 
-#### Summary
+Try running some of the following tasks:
 
-ETHPool provides a service where people can deposit ETH and they will receive weekly rewards. Users must be able to take out their deposits along with their portion of rewards at any time. New rewards are deposited manually into the pool by the ETHPool team each week using a contract function.
+```shell
+npx hardhat accounts
+npx hardhat compile
+npx hardhat clean
+npx hardhat test
+npx hardhat node
+npx hardhat help
+REPORT_GAS=true npx hardhat test
+npx hardhat coverage
+npx hardhat run scripts/deploy.ts
+TS_NODE_FILES=true npx ts-node scripts/deploy.ts
+npx eslint '**/*.{js,ts}'
+npx eslint '**/*.{js,ts}' --fix
+npx prettier '**/*.{json,sol,md}' --check
+npx prettier '**/*.{json,sol,md}' --write
+npx solhint 'contracts/**/*.sol'
+npx solhint 'contracts/**/*.sol' --fix
+```
 
-#### Requirements
+# Etherscan verification
 
-- Only the team can deposit rewards.
-- Deposited rewards go to the pool of users, not to individual users.
-- Users should be able to withdraw their deposits along with their share of rewards considering the time when they deposited.
+To try out Etherscan verification, you first need to deploy a contract to an Ethereum network that's supported by Etherscan, such as Ropsten.
 
-Example:
+In this project, copy the .env.example file to a file named .env, and then edit it to fill in the details. Enter your Etherscan API key, your Ropsten node URL (eg from Alchemy), and the private key of the account which will send the deployment transaction. With a valid .env file in place, first deploy your contract:
 
-> Let say we have user **A** and **B** and team **T**.
->
-> **A** deposits 100, and **B** deposits 300 for a total of 400 in the pool. Now **A** has 25% of the pool and **B** has 75%. When **T** deposits 200 rewards, **A** should be able to withdraw 150 and **B** 450.
->
-> What if the following happens? **A** deposits then **T** deposits then **B** deposits then **A** withdraws and finally **B** withdraws.
-> **A** should get their deposit + all the rewards.
-> **B** should only get their deposit because rewards were sent to the pool before they participated.
+```shell
+hardhat run --network ropsten scripts/deploy.ts
+```
 
-#### Goal
+Then, copy the deployment address and paste it in to replace `DEPLOYED_CONTRACT_ADDRESS` in this command:
 
-Design and code a contract for ETHPool, take all the assumptions you need to move forward.
+```shell
+npx hardhat verify --network ropsten DEPLOYED_CONTRACT_ADDRESS "Hello, Hardhat!"
+```
 
-You can use any development tools you prefer: Hardhat, Truffle, Brownie, Solidity, Vyper.
+# Performance optimizations
 
-Useful resources:
-
-- Solidity Docs: https://docs.soliditylang.org/en/v0.8.4
-- Educational Resource: https://github.com/austintgriffith/scaffold-eth
-- Project Starter: https://github.com/abarmat/solidity-starter
-
-### 2) Write tests
-
-Make sure that all your code is tested properly
-
-### 3) Deploy your contract
-
-Deploy the contract to any Ethereum testnet of your preference. Keep record of the deployed address.
-
-Bonus:
-
-- Verify the contract in Etherscan
-
-### 4) Interact with the contract
-
-Create a script (or a Hardhat task) to query the total amount of ETH held in the contract.
-
-_You can use any library you prefer: Ethers.js, Web3.js, Web3.py, eth-brownie_
+For faster runs of your tests and scripts, consider skipping ts-node's type checking by setting the environment variable `TS_NODE_TRANSPILE_ONLY` to `1` in hardhat's environment. For more details see [the documentation](https://hardhat.org/guides/typescript.html#performance-optimizations).
