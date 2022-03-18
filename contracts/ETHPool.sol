@@ -75,8 +75,8 @@ contract ETHPool is Ownable {
      *      _revertedRewards[msg.sender] += _totalRewardRate * msg.value
      */
     function deposit() external payable {
-        stakedBalances[msg.sender] += msg.value;
-        totalStakedBalance += msg.value;
+        stakedBalances[msg.sender] = stakedBalances[msg.sender].add(msg.value);
+        totalStakedBalance = totalStakedBalance.add(msg.value);
 
         uint256 _lastRevertedReward = _totalRewardRate.mul(msg.value).div(BASE);
         _revertedRewards[msg.sender] = _revertedRewards[msg.sender].add(
@@ -109,7 +109,7 @@ contract ETHPool is Ownable {
      *  @dev Throws when staked Balance is zero, or if withdraw fails.
      */
     function withdraw() external {
-        uint256 _realReward = getWithdrawlAmount(msg.sender);
+        uint256 _realReward = getRewardAmount(msg.sender);
         uint256 _stakedBalance = stakedBalances[msg.sender];
         uint256 _withdrawlAmount = _stakedBalance.add(_realReward);
 
@@ -138,7 +138,7 @@ contract ETHPool is Ownable {
      *  @param _staker Address of user(Staker)
      *  @return _realReward Real Reward that staker can get so far.
      */
-    function getWithdrawlAmount(address _staker)
+    function getRewardAmount(address _staker)
         public
         view
         returns (uint256 _realReward)

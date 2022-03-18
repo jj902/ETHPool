@@ -24,6 +24,12 @@ Testing: yarn test
 
 Deploy: yarn deploy
 
+## Interaction(Hardhat Tasks)
+
+Get Total ETH held in the contract: npx hardhat accounts --ethpool 0x0ABf2526F7822840b4c645c5525048D833a7658a --network kovan
+
+Get Details of signed user: npx hardhat eth-amount --ethpool 0x0ABf2526F7822840b4c645c5525048D833a7658a --network kovan
+
 ## Smart Contract Address
 
-https://kovan.etherscan.io/address/0x4c838Ea1b2AF33BBB912C224baDE7D9Dd9033ef0
+https://kovan.etherscan.io/address/0x0ABf2526F7822840b4c645c5525048D833a7658a
