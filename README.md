@@ -26,7 +26,7 @@ Deploy: `yarn deploy`
 
 ## Interaction(Hardhat Tasks)
 
-Get Total ETH held in the contract: 
+Get Total ETH balance held in the contract: 
 
 `npx hardhat eth-amount --ethpool 0x0ABf2526F7822840b4c645c5525048D833a7658a --network kovan`
 
