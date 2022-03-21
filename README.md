@@ -19,7 +19,9 @@ Example:
 ## How To
 
 Compile: `yarn compile`
+
 Testing: `yarn test`
+
 Deploy: `yarn deploy`
 
 ## Interaction(Hardhat Tasks)
